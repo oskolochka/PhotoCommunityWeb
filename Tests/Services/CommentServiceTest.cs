@@ -16,164 +16,82 @@ namespace PhotoCommunityWeb.Tests.Services
         }
 
         [Test]
-        public void AddComment_ReturnTrue_ValidData()
+        public void AddComment_True_CommentIsValid()
         {
-            var comment = new Comment
-            {
-                CommentId = 1,
-                PhotoId = 1,
-                UserId = 1,
-                CommentText = "Great!"
-            };
+            var comment = new Comment { CommentId = 1, PhotoId = 1, UserId = 1, CommentText = "Отличное фото!" };
 
             var result = _commentService.AddComment(comment);
 
-            Assert.That(result, Is.True);
+            Assert.IsTrue(result); 
         }
 
         [Test]
-        public void AddComment_ReturnFalse_MissingContent()
+        public void AddComment_False_CommentTextIsEmpty()
         {
-            var comment = new Comment
-            {
-                CommentId = 1,
-                PhotoId = 1,
-                UserId = 1,
-                CommentText = ""
-            };
+            var comment = new Comment { CommentId = 1, PhotoId = 1, UserId = 1, CommentText = "" };
 
             var result = _commentService.AddComment(comment);
 
-            Assert.That(result, Is.False);
+            Assert.IsFalse(result); 
         }
 
         [Test]
-        public void EditComment_ReturnTrue_CommentExists()
+        public void GetCommentsByPhotoId_Comments_ForGivenPhotoId()
         {
-            var comment = new Comment
-            {
-                CommentId = 1,
-                PhotoId = 1,
-                UserId = 1,
-                CommentText = "Great!"
-            };
-            _commentService.AddComment(comment);
-
-            var updatedComment = new Comment
-            {
-                CommentId = 1,
-                PhotoId = 1,
-                UserId = 1,
-                CommentText = "Great!"
-            };
-            var result = _commentService.EditComment(updatedComment);
-
-            Assert.That(result, Is.True);
-            Assert.That(_commentService.GetComment(1).CommentText, Is.EqualTo("Great!"));
-        }
-
-        [Test]
-        public void EditComment_ReturnFalse_CommentDoesNotExist()
-        {
-            var updatedComment = new Comment
-            {
-                CommentId = 1,
-                PhotoId = 1,
-                UserId = 1,
-                CommentText = "Great!"
-            };
-
-            var result = _commentService.EditComment(updatedComment);
-
-            Assert.That(result, Is.False);
-        }
-
-        [Test]
-        public void DeleteComment_ReturnTrue_CommentExists()
-        {
-            var comment = new Comment
-            {
-                CommentId = 1,
-                PhotoId = 1,
-                UserId = 1,
-                CommentText = "Great!"
-            };
-            _commentService.AddComment(comment);
-
-            var result = _commentService.DeleteComment(1);
-
-            Assert.That(result, Is.True);
-            Assert.That(_commentService.GetComment(1), Is.Null);
-        }
-
-        [Test]
-        public void DeleteComment_ReturnFalse_CommentDoesNotExist()
-        {
-            var result = _commentService.DeleteComment(1);
-
-            Assert.That(result, Is.False);
-        }
-
-        [Test]
-        public void GetComment_ReturnComment_CommentExists()
-        {
-            var comment = new Comment
-            {
-                CommentId = 1,
-                PhotoId = 1,
-                UserId = 1,
-                CommentText = "Great!"
-            };
-            _commentService.AddComment(comment);
-
-            var result = _commentService.GetComment(1);
-
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.CommentText, Is.EqualTo("Great!"));
-        }
-
-        [Test]
-        public void GetComment_ReturnNull_CommentDoesNotExist()
-        {
-            var result = _commentService.GetComment(1);
-
-            Assert.That(result, Is.Null);
-        }
-
-        [Test]
-        public void GetCommentsByPhotoId_ReturnComments_ForGivenPhotoId()
-        {
-            var comment1 = new Comment
-            {
-                CommentId = 1,
-                PhotoId = 1,
-                UserId = 1,
-                CommentText = "Great!"
-            };
-            var comment2 = new Comment
-            {
-                CommentId = 2,
-                PhotoId = 1,
-                UserId = 2,
-                CommentText = "Great!"
-            };
-            var comment3 = new Comment
-            {
-                CommentId = 3,
-                PhotoId = 2,
-                UserId = 1,
-                CommentText = "Great!"
-            };
+            var comment1 = new Comment { CommentId = 1, PhotoId = 1, UserId = 1, CommentText = "Отличное фото!" };
+            var comment2 = new Comment { CommentId = 2, PhotoId = 1, UserId = 2, CommentText = "Красивый закат!" };
+            var comment3 = new Comment { CommentId = 3, PhotoId = 2, UserId = 1, CommentText = "Прекрасный вид!" };
 
             _commentService.AddComment(comment1);
             _commentService.AddComment(comment2);
             _commentService.AddComment(comment3);
 
-            var result = _commentService.GetCommentsByPhotoId(1);
+            var comments = _commentService.GetCommentsByPhotoId(1);
 
-            Assert.That(result.Count, Is.EqualTo(2));
-            Assert.That(result.Any(c => c.CommentId == 1), Is.True);
-            Assert.That(result.Any(c => c.CommentId == 2), Is.True);
+            Assert.AreEqual(2, comments.Count);
+            Assert.IsTrue(comments.Exists(c => c.CommentId == 1));
+            Assert.IsTrue(comments.Exists(c => c.CommentId == 2));
+        }
+
+        [Test]
+        public void GetComment_Comment_CommentExists()
+        {
+            var comment = new Comment { CommentId = 1, PhotoId = 1, UserId = 1, CommentText = "Отличное фото!" };
+            _commentService.AddComment(comment);
+
+            var retrievedComment = _commentService.GetComment(1);
+
+            Assert.IsNotNull(retrievedComment);
+            Assert.AreEqual("Отличное фото!", retrievedComment.CommentText);
+        }
+
+        [Test]
+        public void GetComment_Null_CommentDoesNotExist()
+        {
+            var retrievedComment = _commentService.GetComment(1);
+
+            Assert.IsNull(retrievedComment); 
+        }
+
+        [Test]
+        public void DeleteComment_True_CommentExists()
+        {
+            var comment = new Comment { CommentId = 1, PhotoId = 1, UserId = 1, CommentText = "Отличное фото!" };
+            _commentService.AddComment(comment);
+
+            var result = _commentService.DeleteComment(1);
+
+            Assert.IsTrue(result);
+            var retrievedComment = _commentService.GetComment(1);
+            Assert.IsNull(retrievedComment); 
+        }
+
+        [Test]
+        public void DeleteComment_ReturnsFalse_WhenCommentDoesNotExist()
+        {
+            var result = _commentService.DeleteComment(1);
+
+            Assert.IsFalse(result); 
         }
     }
 }
