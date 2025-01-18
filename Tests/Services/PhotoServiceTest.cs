@@ -16,164 +16,144 @@ namespace PhotoCommunityWeb.Tests.Services
         }
 
         [Test]
-        public void UploadPhoto_ReturnTrue_ValidData()
+        public void AddPhoto_Photo_AddsPhotoSuccessfully()
         {
-            var photo = new Photo
-            {
-                PhotoId = 1,
-                UserId = 1,
-                Title = "Test Photo",
-                FilePath = "http://example.com/photo.jpg"
-            };
+            var photo = new Photo { PhotoId = 1, UserId = 1, Title = "Закат", FilePath = "путь/к/фото.jpg" };
 
-            var result = _photoService.UploadPhoto(photo);
+            _photoService.AddPhoto(photo);
 
-            Assert.That(result, Is.True);
+            var retrievedPhoto = _photoService.GetPhoto(1);
+            Assert.IsNotNull(retrievedPhoto);
+            Assert.AreEqual("Закат", retrievedPhoto.Title);
         }
 
         [Test]
-        public void UploadPhoto_ReturnFalse_MissingTitle()
+        public void GetPhotosByUserId_Photos_UserHasPhotos()
         {
-            var photo = new Photo
-            {
-                PhotoId = 1,
-                UserId = 1,
-                Title = "",
-                FilePath = "http://example.com/photo.jpg"
-            };
+            var photo1 = new Photo { PhotoId = 1, UserId = 1, Title = "Закат", FilePath = "путь/к/фото1.jpg" };
+            var photo2 = new Photo { PhotoId = 2, UserId = 1, Title = "Пляж", FilePath = "путь/к/фото2.jpg" };
+            var photo3 = new Photo { PhotoId = 3, UserId = 2, Title = "Гора", FilePath = "путь/к/фото3.jpg" };
 
-            var result = _photoService.UploadPhoto(photo);
+            _photoService.AddPhoto(photo1);
+            _photoService.AddPhoto(photo2);
+            _photoService.AddPhoto(photo3);
 
-            Assert.That(result, Is.False);
+            var photos = _photoService.GetPhotosByUserId(1);
+
+            Assert.AreEqual(2, photos.Count);
         }
 
         [Test]
-        public void UploadPhoto_ReturnFalse_MissingFilePath()
+        public void GetPhoto_Photo_PhotoExists()
         {
-            var photo = new Photo
-            {
-                PhotoId = 1,
-                UserId = 1,
-                Title = "Test Photo",
-                FilePath = ""
-            };
+            var photo = new Photo { PhotoId = 1, UserId = 1, Title = "Закат", FilePath = "путь/к/фото.jpg" };
+            _photoService.AddPhoto(photo);
 
-            var result = _photoService.UploadPhoto(photo);
+            var retrievedPhoto = _photoService.GetPhoto(1);
 
-            Assert.That(result, Is.False);
+            Assert.IsNotNull(retrievedPhoto);
+            Assert.AreEqual("Закат", retrievedPhoto.Title);
         }
 
         [Test]
-        public void EditPhoto_ReturnTrue_PhotoExists()
+        public void GetPhoto_Null_PhotoDoesNotExist()
         {
-            var photo = new Photo
-            {
-                PhotoId = 1,
-                UserId = 1,
-                Title = "Title",
-                FilePath = "http://example.com/photo.jpg"
-            };
-            _photoService.UploadPhoto(photo);
+            var retrievedPhoto = _photoService.GetPhoto(1);
 
-            var updatedPhoto = new Photo
-            {
-                PhotoId = 1,
-                UserId = 1,
-                Title = "New Title",
-                FilePath = "http://example.com/photo.jpg"
-            };
-            var result = _photoService.EditPhoto(updatedPhoto);
-
-            Assert.That(result, Is.True);
-            Assert.That(_photoService.GetPhoto(1).Title, Is.EqualTo("New Title"));
+            Assert.IsNull(retrievedPhoto);
         }
 
         [Test]
-        public void EditPhoto_ReturnFalse_PhotoDoesNotExist()
+        public void UpdatePhoto_True_PhotoIsUpdated()
         {
-            var updatedPhoto = new Photo
-            {
-                PhotoId = 1,
-                UserId = 1,
-                Title = "Title",
-                FilePath = "http://example.com/photo.jpg"
-            };
+            var photo = new Photo { PhotoId = 1, UserId = 1, Title = "Закат", FilePath = "путь/к/фото.jpg" };
+            _photoService.AddPhoto(photo);
 
-            var result = _photoService.EditPhoto(updatedPhoto);
+            var updatedPhoto = new Photo { PhotoId = 1, UserId = 1, Title = "Другой Закат", FilePath = "путь/к/другому_фото.jpg" };
+            var result = _photoService.UpdatePhoto(updatedPhoto);
 
-            Assert.That(result, Is.False);
+            Assert.IsTrue(result);
+            var retrievedPhoto = _photoService.GetPhoto(1);
+            Assert.AreEqual("Другой Закат", retrievedPhoto.Title);
         }
 
         [Test]
-        public void DeletePhoto_ReturnTrue_PhotoExists()
+        public void UpdatePhoto_False_PhotoDoesNotExist()
         {
-            var photo = new Photo
-            {
-                PhotoId = 1,
-                UserId = 1,
-                Title = "Test Photo",
-                FilePath = "http://example.com/photo.jpg"
-            };
-            _photoService.UploadPhoto(photo);
+            var photo = new Photo { PhotoId = 1, UserId = 1, Title = "Закат", FilePath = "путь/к/фото.jpg" };
+
+            var result = _photoService.UpdatePhoto(photo);
+
+            Assert.IsFalse(result); // Фотография не найдена
+        }
+
+        [Test]
+        public void DeletePhoto_True_PhotoExists()
+        {
+            var photo = new Photo { PhotoId = 1, UserId = 1, Title = "Закат", FilePath = "путь/к/фото.jpg" };
+            _photoService.AddPhoto(photo);
 
             var result = _photoService.DeletePhoto(1);
 
-            Assert.That(result, Is.True);
-            Assert.That(_photoService.GetPhoto(1), Is.Null);
+            Assert.IsTrue(result);
+            var retrievedPhoto = _photoService.GetPhoto(1);
+            Assert.IsNull(retrievedPhoto);
         }
 
         [Test]
-        public void DeletePhoto_ReturnFalse_PhotoDoesNotExist()
+        public void DeletePhoto_False_PhotoDoesNotExist()
         {
             var result = _photoService.DeletePhoto(1);
 
-            Assert.That(result, Is.False);
+            Assert.IsFalse(result); 
         }
 
         [Test]
-        public void GetPhoto_ReturnPhoto_PhotoExists()
+        public void SearchPhotos_Photos_SearchTermMatches()
         {
-            var photo = new Photo
-            {
-                PhotoId = 1,
-                UserId = 1,
-                Title = "Test Photo",
-                FilePath = "http://example.com/photo.jpg"
-            };
-            _photoService.UploadPhoto(photo);
+            var photo1 = new Photo { PhotoId = 1, UserId = 1, Title = "Закат", Description = "Красивый закат", Tags = "закат" };
+            var photo2 = new Photo { PhotoId = 2, UserId = 1, Title = "Пляж", Description = "Солнечный пляж", Tags = "пляж" };
+            var photo3 = new Photo { PhotoId = 3, UserId = 2, Title = "Гора", Description = "Высокая гора", Tags = "гора" };
 
-            var result = _photoService.GetPhoto(1);
+            _photoService.AddPhoto(photo1);
+            _photoService.AddPhoto(photo2);
+            _photoService.AddPhoto(photo3);
 
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.Title, Is.EqualTo("Test Photo"));
+            var searchResults = _photoService.SearchPhotos("закат");
+
+            Assert.AreEqual(1, searchResults.Count);
+            Assert.AreEqual("Закат", searchResults[0].Title);
         }
 
         [Test]
-        public void GetAllPhotos_ReturnAllPhotos()
+        public void SearchPhotos_EmptyList_NoMatchesFound()
         {
-            var photo1 = new Photo
-            {
-                PhotoId = 1,
-                UserId = 1,
-                Title = "Photo 1",
-                FilePath = "http://example.com/photo1.jpg"
-            };
+            var photo1 = new Photo { PhotoId = 1, UserId = 1, Title = "Закат", Description = "Красивый закат", Tags = "закат" };
+            var photo2 = new Photo { PhotoId = 2, UserId = 1, Title = "Пляж", Description = "Солнечный пляж", Tags = "пляж" };
 
-            var photo2 = new Photo
-            {
-                PhotoId = 2,
-                UserId = 1,
-                Title = "Photo 2",
-                FilePath = "http://example.com/photo2.jpg"
-            };
-            _photoService.UploadPhoto(photo1);
-            _photoService.UploadPhoto(photo2);
+            _photoService.AddPhoto(photo1);
+            _photoService.AddPhoto(photo2);
 
-            var result = _photoService.GetAllPhotos();
+            var searchResults = _photoService.SearchPhotos("гора");
 
-            Assert.That(result.Count, Is.EqualTo(2));
-            Assert.That(result.Any(p => p.PhotoId == photo1.PhotoId), Is.True);
-            Assert.That(result.Any(p => p.PhotoId == photo2.PhotoId), Is.True);
+            Assert.AreEqual(0, searchResults.Count); 
+        }
+
+        [Test]
+        public void SearchPhotos_Photos_SearchTermMatchesTags()
+        {
+            var photo1 = new Photo { PhotoId = 1, UserId = 1, Title = "Закат", Description = "Красивый закат", Tags = "закат" };
+            var photo2 = new Photo { PhotoId = 2, UserId = 1, Title = "Пляж", Description = "Солнечный пляж", Tags = "пляж" };
+            var photo3 = new Photo { PhotoId = 3, UserId = 2, Title = "Гора", Description = "Высокая гора", Tags = "гора" };
+
+            _photoService.AddPhoto(photo1);
+            _photoService.AddPhoto(photo2);
+            _photoService.AddPhoto(photo3);
+
+            var searchResults = _photoService.SearchPhotos("гора");
+
+            Assert.AreEqual(1, searchResults.Count); 
+            Assert.AreEqual("Гора", searchResults[0].Title);
         }
     }
 }
