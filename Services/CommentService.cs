@@ -13,32 +13,15 @@ namespace PhotoCommunityWeb.Services
                 return false;
             }
 
-            _comments.Add(comment);
-            return true;
+            _comments.Add(comment); 
+            return true; 
         }
 
-        public bool EditComment(Comment updatedComment)
+        public List<Comment> GetCommentsByPhotoId(int photoId)
         {
-            var existingComment = _comments.FirstOrDefault(c => c.CommentId == updatedComment.CommentId);
-            if (existingComment == null)
-            {
-                return false;
-            }
-
-            existingComment.CommentText = updatedComment.CommentText;
-            return true;
-        }
-
-        public bool DeleteComment(int commentId)
-        {
-            var comment = _comments.FirstOrDefault(c => c.CommentId == commentId);
-            if (comment == null)
-            {
-                return false; 
-            }
-
-            _comments.Remove(comment);
-            return true;
+            return _comments
+                .Where(c => c.PhotoId == photoId)
+                .ToList(); 
         }
 
         public Comment GetComment(int commentId)
@@ -46,9 +29,16 @@ namespace PhotoCommunityWeb.Services
             return _comments.FirstOrDefault(c => c.CommentId == commentId);
         }
 
-        public List<Comment> GetCommentsByPhotoId(int photoId)
+        public bool DeleteComment(int commentId)
         {
-            return _comments.Where(c => c.PhotoId == photoId).ToList();
+            var comment = _comments.FirstOrDefault(c => c.CommentId == commentId);
+            if (comment == null)
+            {
+                return false;
+            }
+
+            _comments.Remove(comment); 
+            return true; 
         }
     }
 }
