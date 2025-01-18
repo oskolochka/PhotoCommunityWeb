@@ -2,7 +2,7 @@
 
 namespace PhotoCommunityWeb.Services
 {
-    public class PhotoService
+    public class PhotoService : IPhotoService
     {
         private readonly List<Photo> _photos = new List<Photo>();
 
