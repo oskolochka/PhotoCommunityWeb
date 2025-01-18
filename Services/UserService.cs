@@ -2,11 +2,12 @@
 
 namespace PhotoCommunityWeb.Services
 {
-    public class UserService
+    public class UserService : IUserService
     {
+
         private readonly List<User> _users = new List<User>();
 
-        public bool RegisterUser(User user)
+        public virtual bool RegisterUser(User user)
         {
             if (string.IsNullOrWhiteSpace(user.LastName) ||
                 string.IsNullOrWhiteSpace(user.FirstName) ||
@@ -30,17 +31,17 @@ namespace PhotoCommunityWeb.Services
             return true; 
         }
 
-        public User Login(string login, string password)
+        public virtual User Login(string login, string password)
         {
             return _users.FirstOrDefault(u => u.Login == login && u.Password == password);
         }
 
-        public User GetUser(int userId)
+        public virtual User GetUser(int userId)
         {
             return _users.FirstOrDefault(u => u.UserId == userId);
         }
 
-        public bool UpdateUser(User user)
+        public virtual bool UpdateUser(User user)
         {
             var existingUser = _users.FirstOrDefault(u => u.UserId == user.UserId);
             if (existingUser == null || existingUser.Login != user.Login)
@@ -57,7 +58,7 @@ namespace PhotoCommunityWeb.Services
             return true; 
         }
 
-        public bool ChangePassword(int userId, string newPassword)
+        public virtual bool ChangePassword(int userId, string newPassword)
         {
 
             if (newPassword.Length < 8)
@@ -75,7 +76,7 @@ namespace PhotoCommunityWeb.Services
             return true; 
         }
 
-        public bool DeleteUser(int userId)
+        public virtual bool DeleteUser(int userId)
         {
             var user = _users.FirstOrDefault(u => u.UserId == userId);
             if (user == null)
