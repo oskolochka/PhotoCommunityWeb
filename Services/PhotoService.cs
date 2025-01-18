@@ -6,29 +6,37 @@ namespace PhotoCommunityWeb.Services
     {
         private readonly List<Photo> _photos = new List<Photo>();
 
-        public bool UploadPhoto(Photo photo)
+        public void AddPhoto(Photo photo)
         {
-            if (string.IsNullOrWhiteSpace(photo.Title) || string.IsNullOrWhiteSpace(photo.FilePath))
-            {
-                return false;
-            }
-
             _photos.Add(photo);
-            return true;
         }
 
-        public bool EditPhoto(Photo updatedPhoto)
+        public List<Photo> GetPhotosByUserId(int userId)
         {
-            var existingPhoto = _photos.FirstOrDefault(p => p.PhotoId == updatedPhoto.PhotoId);
+            return _photos
+                .Where(p => p.UserId == userId)
+                .Take(10) 
+                .ToList();
+        }
+
+        public Photo GetPhoto(int photoId)
+        {
+            return _photos.FirstOrDefault(p => p.PhotoId == photoId); 
+        }
+
+        public bool UpdatePhoto(Photo photo)
+        {
+            var existingPhoto = _photos.FirstOrDefault(p => p.PhotoId == photo.PhotoId);
             if (existingPhoto == null)
             {
-                return false;
+                return false; 
             }
 
-            existingPhoto.Title = updatedPhoto.Title;
-            existingPhoto.FilePath = updatedPhoto.FilePath;
-            existingPhoto.Description = updatedPhoto.Description;
-            existingPhoto.Tags = updatedPhoto.Tags;
+            existingPhoto.Title = photo.Title; 
+            existingPhoto.Description = photo.Description; 
+            existingPhoto.Tags = photo.Tags; 
+            existingPhoto.FilePath = photo.FilePath; 
+
             return true;
         }
 
@@ -37,21 +45,20 @@ namespace PhotoCommunityWeb.Services
             var photo = _photos.FirstOrDefault(p => p.PhotoId == photoId);
             if (photo == null)
             {
-                return false;
+                return false; 
             }
 
-            _photos.Remove(photo);
-            return true;
+            _photos.Remove(photo); 
+            return true; 
         }
 
-        public Photo GetPhoto(int photoId)
+        public List<Photo> SearchPhotos(string searchTerm)
         {
-            return _photos.FirstOrDefault(p => p.PhotoId == photoId);
-        }
-
-        public List<Photo> GetAllPhotos()
-        {
-            return _photos;
+            return _photos
+                .Where(p => p.Title.Contains(searchTerm) ||
+                             p.Description.Contains(searchTerm) ||
+                             (p.Tags != null && p.Tags.Contains(searchTerm)))
+                .ToList(); 
         }
     }
 }
