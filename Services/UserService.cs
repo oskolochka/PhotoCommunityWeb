@@ -27,12 +27,12 @@ namespace PhotoCommunityWeb.Services
             }
 
             _users.Add(user);
-            return true;
+            return true; 
         }
 
-        public bool Login(string login, string password)
+        public User Login(string login, string password)
         {
-            return _users.Any(u => u.Login == login && u.Password == password);
+            return _users.FirstOrDefault(u => u.Login == login && u.Password == password);
         }
 
         public User GetUser(int userId)
@@ -43,17 +43,36 @@ namespace PhotoCommunityWeb.Services
         public bool UpdateUser(User user)
         {
             var existingUser = _users.FirstOrDefault(u => u.UserId == user.UserId);
-            if (existingUser == null)
+            if (existingUser == null || existingUser.Login != user.Login)
             {
-                return false;
+                return false; 
             }
 
             existingUser.FirstName = user.FirstName;
             existingUser.LastName = user.LastName;
-            existingUser.Login = user.Login;
-            existingUser.Password = user.Password;
+            existingUser.MiddleName = user.MiddleName;
+            existingUser.Cameras = user.Cameras;
+            existingUser.Lenses = user.Lenses;
 
-            return true;
+            return true; 
+        }
+
+        public bool ChangePassword(int userId, string newPassword)
+        {
+
+            if (newPassword.Length < 8)
+            {
+                return false;
+            }
+
+            var user = GetUser(userId);
+            if (user == null)
+            {
+                return false; 
+            }
+
+            user.Password = newPassword;
+            return true; 
         }
 
         public bool DeleteUser(int userId)
@@ -61,11 +80,11 @@ namespace PhotoCommunityWeb.Services
             var user = _users.FirstOrDefault(u => u.UserId == userId);
             if (user == null)
             {
-                return false;
+                return false; 
             }
 
             _users.Remove(user);
-            return true;
+            return true; 
         }
     }
 }
