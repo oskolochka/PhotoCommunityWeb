@@ -34,5 +34,38 @@ namespace PhotoCommunityWeb.Services
         {
             return _users.Any(u => u.Login == login && u.Password == password);
         }
+
+        public User GetUser(int userId)
+        {
+            return _users.FirstOrDefault(u => u.UserId == userId);
+        }
+
+        public bool UpdateUser(User user)
+        {
+            var existingUser = _users.FirstOrDefault(u => u.UserId == user.UserId);
+            if (existingUser == null)
+            {
+                return false;
+            }
+
+            existingUser.FirstName = user.FirstName;
+            existingUser.LastName = user.LastName;
+            existingUser.Login = user.Login;
+            existingUser.Password = user.Password;
+
+            return true;
+        }
+
+        public bool DeleteUser(int userId)
+        {
+            var user = _users.FirstOrDefault(u => u.UserId == userId);
+            if (user == null)
+            {
+                return false;
+            }
+
+            _users.Remove(user);
+            return true;
+        }
     }
 }

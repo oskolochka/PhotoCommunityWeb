@@ -2,7 +2,7 @@
 using PhotoCommunityWeb.Models;
 using PhotoCommunityWeb.Services;
 
-namespace PhotoCommunityWeb.Tests
+namespace PhotoCommunityWeb.Tests.Services
 {
     [TestFixture]
     public class PhotoServiceTests
